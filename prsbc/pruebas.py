@@ -2,6 +2,8 @@ import math
 import json
 import numpy as np
 from prsbc.heuristicas.hcv import *
+from prsbc.heuristicas.pilot import *
+from prsbc.heuristicas.vnd import *
 from prsbc.utilidades.constantes import *
 
 def basica():
@@ -46,12 +48,12 @@ def basica():
                  JORNADA_EN_HORAS * 60 * 60,
                  dtype=np.int_)
     #
-    r, y, b, a, tt, z = hvc_fleet(v, p, q, t, k, tl)
+    r, y, b, a, tt, z = hcv_fleet(v, p, q, t, k, tl)
     print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:, :]}")
-    #r, y, b, a, tt, z = pilotFlota(v, p, q, t, k, tl)
-    #print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")
+    r, y, b, a, tt, z = pilot_fleet(v, p, q, t, k, tl)
+    print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")
     # idx = (1, 3)
     # idy = (3, 1)
     # r, y, b, tt, z = swap(idx, idy, r, y, b, tt, a, q, t)
-    #r, y, b, tt, z = VND(r, y, b, tt, a, q, t, k, tl, 50, N)
-    #print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")
+    r, y, b, tt, z = vnd(r, y, b, tt, a, q, t, k, tl, 50, N)
+    print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")

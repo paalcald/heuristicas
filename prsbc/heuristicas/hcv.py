@@ -209,7 +209,7 @@ def hcv_single(
     return r, y, b, a, tt, z
 
 
-def hvc_fleet(
+def hcv_fleet(
     v: npt.NDArray[np.intp],
     p: npt.NDArray[np.int_],
     q: npt.NDArray[np.int_],
