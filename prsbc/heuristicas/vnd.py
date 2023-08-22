@@ -26,7 +26,7 @@ def vnd_extended(r, y, b, tt, z, v, p, a, q, t, k, tl, D, N):
                         +t[r[idx[0], idx[1] - 1], r[idy]]
                         - t[r[idx[0], idx[1] - 1], r[idx]]
                         )
-                    ro, yo, bo, ao, tt, z = hcv_fleet(v,p,q,t,k,tl,idx,ro,yo,ao,bo,tt)   # type: ignore
+                    ro, yo, bo, ao, tt, z = hcv_fleet(v,p,q,t,k,tl,idx,ro,yo,ao,bo,tt)  
                     if z < zmin:
                         r = ro
                         y = yo
@@ -105,13 +105,21 @@ def swap(idx, idy, ro, yo, bo, tto, a, q, t):
 def get_impv_for_swap(idx, idy, ro, yo, bo, tto, t, k, tl):
     tt = tto.copy()
     zmin = tto[idx[0], -2] + tto[idy[0], -2]
-    tt[idx[0], idx[1]: - 1] += (
+    tt[idx[0], idx[1]] += (
+        +t[ro[idx[0], idx[1] - 1], ro[idy]]
+        - t[ro[idx[0], idx[1] - 1], ro[idx]]
+    )
+    tt[idy[0], idy[1]] += (
+        +t[ro[idy[0], idy[1] - 1], ro[idx]]
+        - t[ro[idy[0], idy[1] - 1], ro[idy]]
+    )
+    tt[idx[0], idx[1] + 1: - 1] += (
         +t[ro[idx[0], idx[1] - 1], ro[idy]]
         + t[ro[idy], ro[idx[0], idx[1] + 1]]
         - t[ro[idx[0], idx[1] - 1], ro[idx]]
         - t[ro[idx], ro[idx[0], idx[1] + 1]]
     )
-    tt[idy[0], idy[1]: -1] += (
+    tt[idy[0], idy[1] + 1: -1] += (
         +t[ro[idy[0], idy[1] - 1], ro[idx]]
         + t[ro[idx], ro[idy[0], idy[1] + 1]]
         - t[ro[idy[0], idy[1] - 1], ro[idy]]
