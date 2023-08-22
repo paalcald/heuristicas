@@ -5,8 +5,10 @@ from prsbc.heuristicas.hcv import *
 from prsbc.heuristicas.pilot import *
 from prsbc.heuristicas.vnd import *
 from prsbc.utilidades.constantes import *
+from prsbc.utilidades.cronometrado import cronometrando
 
-def basica():
+
+def main():
     file_estaciones202206 = open("./prsbc/datos/202206.json", "r")
     estaciones_k = json.loads(file_estaciones202206.readline())
 
@@ -23,7 +25,7 @@ def basica():
     # Asignamos nuevas id's por que las estaciones de bicimad no tienen id's consecutivas
     v = np.arange(0, p.size, dtype=np.intp)
     # Asumimos que el valor deseado de bicicletas es el 66% de la capacidad de la estación
-    q = (C * 0.50).astype(np.int_)
+    q = (C * 2 / 3).astype(np.int_)
     # Asignamos tiempos aleatorios para llegar de una estación a otra,
     # podriamos usar la api de google maps para obtener tiempos reales
     x = np.zeros((len(p), 2))
@@ -40,20 +42,18 @@ def basica():
     t = (dist / 8).astype(np.int_)
     N = np.argsort(t, axis=1)
 
-    k = np.full(NUM_VEHICULOS + 1,
-                CAPACIDAD_VEHICULO,
-                dtype=np.int_)
+    k = np.full(NUM_VEHICULOS + 1, CAPACIDAD_VEHICULO, dtype=np.int_)
     k[0] = 0
-    tl = np.full(NUM_VEHICULOS + 1,
-                 JORNADA_EN_HORAS * 60 * 60,
-                 dtype=np.int_)
+    tl = np.full(NUM_VEHICULOS + 1, JORNADA_EN_HORAS * 60 * 60, dtype=np.int_)
     #
-    r, y, b, a, tt, z = hcv_fleet(v, p, q, t, k, tl)
+    r, y, b, a, tt, z = cronometrando(hcv_fleet)(v, p, q, t, k, tl)
     print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:, :]}")
-    r, y, b, a, tt, z = pilot_fleet(v, p, q, t, k, tl)
-    print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")
     # idx = (1, 3)
     # idy = (3, 1)
     # r, y, b, tt, z = swap(idx, idy, r, y, b, tt, a, q, t)
-    r, y, b, tt, z = vnd(r, y, b, tt, a, q, t, k, tl, 50, N)
+    r, y, b, tt, z = cronometrando(vnd_basic)(r, y, b, tt, a, q, t, k, tl, 50, N)
+    print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")
+    r, y, b, a, tt, z = cronometrando(vnd_extended)(r, y, b, tt, z, v, p, a, q, t, k, tl, 10, N)
+    print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")
+    r, y, b, a, tt, z = cronometrando(pilot_fleet)(v, p, q, t, k, tl)
     print(f"r ={r[1:,:]} \ny ={y[1:,:]}\nz = {z}\ntt={tt[1:,:]}")

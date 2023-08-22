@@ -1,8 +1,45 @@
 import numpy as np
 from prsbc.utilidades.constantes import *
+from prsbc.heuristicas.hcv import hcv_fleet
 
-def vnd(r, y, b, tt, a, q, t, k, tl, D, N):
+def vnd_extended(r, y, b, tt, z, v, p, a, q, t, k, tl, D, N):
+    zmin = z
+    for d in np.arange(1, D):
+        for idx, rx in np.ndenumerate(r[1:, 1:-1]):
+            idx = (idx[0] + 1, idx[1] + 1)
+            for idy, ry in np.ndenumerate(r[idx[0] + 1 :, 1:-1]):
+                idy = (idy[0] + idx[0] + 1, idy[1] + 1)
+                if ry in N[rx, :d]:
+                    maybe_b = b[idx] - y[idx] + y[idy]
+                    if (maybe_b > k[idx[0]] or maybe_b < 0):
+                        break #no factible
+                    ro = r.copy()
+                    ro[idx] = ro[idy]
+                    yo = y.copy()
+                    yo[idx] = yo[idy]
+                    ao = a.copy()
+                    ao[r[idx]] += yo[idx]
+                    bo = b.copy()
+                    b[idx] = maybe_b
+                    tto = tt.copy()
+                    tto[idx] += (
+                        +t[r[idx[0], idx[1] - 1], r[idy]]
+                        - t[r[idx[0], idx[1] - 1], r[idx]]
+                        )
+                    ro, yo, bo, ao, tt, z = hcv_fleet(v,p,q,t,k,tl,idx,ro,yo,ao,bo,tt)
+                    if z < zmin:
+                        r = ro
+                        y = yo
+                        b = bo
+                        a = ao
+                        tt = tto
+
+    return r, y, b, a, tt, z
+
+                    
+def vnd_basic(r, y, b, tt, a, q, t, k, tl, D, N):
     impv = 0
+    z = None
     for d in np.arange(1, D):
         idxo = None
         idyo = None
@@ -18,15 +55,27 @@ def vnd(r, y, b, tt, a, q, t, k, tl, D, N):
                             idxo = idx
                             idyo = idy
         if idxo is not None and idyo is not None:
-            print(f"swaped {idxo} for {idyo}")
             r, y, b, tt, z = swap(idxo, idyo, r, y, b, tt, a, q, t)
-
+    if z is None:
+        z = (
+            np.sum(np.abs(np.subtract(a, q, dtype=np.int_)))
+            + W_2 * np.sum(np.sum(np.abs(y)))
+            + W_3 * np.sum(tt[:, -2])
+        )
     return r, y, b, tt, z
 
 
 def swap(idx, idy, ro, yo, bo, tto, a, q, t):
     tt = tto.copy()
-    tt[idx[0], idx[1]:] += (
+    tt[idx[0], idx[1]] += (
+        +t[ro[idx[0], idx[1] - 1], ro[idy]]
+        - t[ro[idx[0], idx[1] - 1], ro[idx]]
+    )
+    tt[idy[0], idy[1]] += (
+        +t[ro[idy[0], idy[1] - 1], ro[idx]]
+        - t[ro[idy[0], idy[1] - 1], ro[idy]]
+    )
+    tt[idx[0], idx[1] + 1:] += (
         +t[ro[idx[0], idx[1] - 1], ro[idy]]
         + t[ro[idy], ro[idx[0], idx[1] + 1]]
         - t[ro[idx[0], idx[1] - 1], ro[idx]]
@@ -75,8 +124,6 @@ def get_impv_for_swap(idx, idy, ro, yo, bo, tto, t, k, tl):
         return None
     b = bo.copy()
     b[idx[0], idx[1] : -1] += yo[idy] - yo[idx]
-    if yo[idy] == yo[idx]:
-        print("de interes")
     b[idy[0], idy[1] : -1] += yo[idy] - yo[idx]
     if np.any(b.T > k) or np.any(b < 0):
         return None

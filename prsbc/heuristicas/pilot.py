@@ -22,7 +22,7 @@ def pilot_single(
     npt.NDArray[np.int_],
     npt.NDArray[np.int_],
     npt.NDArray[np.int_],
-    np.int_,
+    npt.NDArray[np.int_],
     np.float_,
 ]:
     r = ro.copy()
@@ -39,7 +39,7 @@ def pilot_single(
             break
 
         # Paso 4
-        bb = prehvc(u, tt[lm], tl, v, a, q, t)
+        bb = prehvc(u, tt[lm], tl, v, a, q, t) # type: ignore
         if b[lm] >= bb:
             F = F[a[F] < q[F]]
         if F.size == 0:
@@ -49,7 +49,7 @@ def pilot_single(
         Vm = a[F] < q[F]
         Vp = a[F] > q[F]
         g = np.zeros(F.size, dtype=np.int_)
-        g[Vp] = np.fmin(a[F][Vp] - q[F][Vp], min(k, bb) - b[lm])
+        g[Vp] = np.fmin(a[F][Vp] - q[F][Vp], min(k, bb) - b[lm]) # type: ignore
         g[Vm] = np.fmin(q[F][Vm] - a[F][Vm], b[lm])
 
         # Paso 6
@@ -138,7 +138,14 @@ def pilot_fleet(
     t: npt.NDArray[np.int_],
     k: npt.NDArray[np.int_],
     tl: npt.NDArray[np.int_],
-) -> tuple[npt.NDArray[np.intp], npt.NDArray[np.int_], np.float_]:
+) -> tuple[
+    npt.NDArray[np.intp],
+    npt.NDArray[np.int_],
+    npt.NDArray[np.int_],
+    npt.NDArray[np.int_],
+    npt.NDArray[np.int_],
+    np.float_,
+]:
     """Calcula la ruta óptima a realizar por cada vehículo.
 
     Args:
@@ -171,8 +178,8 @@ def pilot_fleet(
             p,
             q,
             t,
-            k[l],
-            tl[l],
+            k[l], # type: ignore
+            tl[l], # type: ignore
         )
 
     z = (

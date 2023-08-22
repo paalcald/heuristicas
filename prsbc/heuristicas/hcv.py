@@ -3,6 +3,7 @@ import numpy.typing as npt
 from prsbc.utilidades.constantes import *
 from prsbc.utilidades.cronometrado import cronometrando
 
+
 def prehvc(
     r: np.intp,
     tp: np.int_,
@@ -12,7 +13,7 @@ def prehvc(
     q: npt.NDArray[np.int_],
     t: npt.NDArray[np.int_],
 ) -> np.int_:
-    """Calcula cuantas bicicletas se pueden dejar antes de alcanzar el tiempo 
+    """Calcula cuantas bicicletas se pueden dejar antes de alcanzar el tiempo
     límite y asumiendo que hubiese infinitas en el vehículo.
 
     Args:
@@ -21,9 +22,9 @@ def prehvc(
         tl (np.int_): Tiempo límite.
         a (npt.NDArray[np.intp]):
             Cantidad actual de bicicletas por estación.
-        q (npt.NDArray[np.intp]): 
+        q (npt.NDArray[np.intp]):
             Cantidad deseada de bicicletas por estación.
-        t (npt.NDArray[np.intp]): 
+        t (npt.NDArray[np.intp]):
             Tiempos de translado del vehículo entre estaciones.
 
     Returns:
@@ -69,10 +70,9 @@ def hcv_single(
     npt.NDArray[np.int_],
     npt.NDArray[np.int_],
     npt.NDArray[np.int_],
-    np.int_,
+    npt.NDArray[np.int_],
     np.float_,
 ]:
-    
     """Heurística de construcción y mejora para el problema de recogida y
     entrega de bicicletas capáz de empezar en una estación cualquiera con
     parte del algoritmo ya ejecutado.
@@ -91,15 +91,15 @@ def hcv_single(
             Estaciones visitables.
         ao (npt.NDArray[np.int_]):
             Cantidad de bicicletas en cada estación a retomar.
-        p (npt.NDArray[np.int_]): 
+        p (npt.NDArray[np.int_]):
             Cantidad de bicicletas en cada estación previas a la ruta.
         q (npt.NDArray[np.int_]):
             Cantidad deseada de bicicletas por estación.
-        t (npt.NDArray[np.int_]): 
+        t (npt.NDArray[np.int_]):
             Tiempos de translado del vehículo entre estaciones.
         k (np.int_):
             Capacidad del vehículo.
-        tl (np.int_): 
+        tl (np.int_):
             Tiempo límite para el vehículo.
 
     Returns:
@@ -141,7 +141,7 @@ def hcv_single(
         Vm = a[F] < q[F]
         Vp = a[F] > q[F]
         g = np.zeros(F.size, dtype=np.int_)
-        g[Vp] = np.fmin(a[F][Vp] - q[F][Vp], min(k, bb) - b[lm])
+        g[Vp] = np.fmin(a[F][Vp] - q[F][Vp], min(k, bb) - b[lm]) # type: ignore
         g[Vm] = np.fmin(q[F][Vm] - a[F][Vm], b[lm])
 
         # Paso 6
@@ -183,7 +183,6 @@ def hcv_single(
             b[-2] -= y[lmb]
             y[lmb] = 0
 
-            
             if lm == 1:
                 tt[lm] = np.int_(0)
             elif lmb == 1 and lmb < lm:
@@ -216,7 +215,7 @@ def hcv_fleet(
     t: npt.NDArray[np.int_],
     k: npt.NDArray[np.int_],
     tl: npt.NDArray[np.int_],
-    idx: tuple[np.intp, np.intp] = (0, 0),
+    idx: tuple[np.intp, np.intp] = (np.intp(0), np.intp(0)),
     ro: npt.NDArray[np.intp] = np.zeros(
         (NUM_VEHICULOS + 1, MAX_PARADAS + 2), dtype=np.intp
     ),
@@ -290,8 +289,8 @@ def hcv_fleet(
             p,
             q,
             t,
-            k[l],
-            tl[l],
+            k[l],  # type: ignore
+            tl[l], # type: ignore
         )
 
     z = (
