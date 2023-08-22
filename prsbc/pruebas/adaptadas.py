@@ -1,4 +1,5 @@
 import json
+from prsbc.utilidades.constantes import *
 from prsbc.heuristicas.hcv import hcv_fleet as HCV
 from prsbc.heuristicas.pilot import pilot_fleet as PILOT
 from prsbc.heuristicas.vnd import vnd_extended as VND
@@ -9,11 +10,11 @@ from time import time
 
 def main():
     # Parametros
-    NUM_ESTACIONES = 50
+    NUM_ESTACIONES = 100
     NUM_PRUEBAS = 10
-    k = np.full(4, 20, dtype=np.int_)
+    k = np.full(NUM_VEHICULOS + 1, CAPACIDAD_VEHICULO, dtype=np.int_)
     k[0] = np.int_(0)
-    tl = np.full(4, 3 * 60 * 60, dtype=np.int_)
+    tl = np.full(NUM_VEHICULOS + 1, JORNADA_EN_HORAS * 60 * 60, dtype=np.int_)
     tl[0] = np.int_(0)
 
     # Para guardar los resultados
@@ -31,27 +32,26 @@ def main():
     t_vndbasicpilot = 0
 
     i = 0
-
+    file_estaciones202206 = open("./prsbc/datos/202206.json")
+    estaciones_k = json.loads(file_estaciones202206.readline())
+    po = np.array([0] + [estacion['dock_bikes']
+                        for estacion in estaciones_k['stations']], dtype=np.int_)
+    C = np.array([0] + [estacion['total_bases']
+                        for estacion in estaciones_k['stations']], dtype=np.int_)
+    vo = np.arange(0, po.size)
+    qo = (C * 2/3).astype(np.int_)
     while i < NUM_PRUEBAS:
         
         try:
         
             # Datos
-            file_estaciones202206 = open("./prsbc/datos/202206.json")
-            estaciones_k = json.loads(file_estaciones202206.readline())
-            p = np.array([0] + [estacion['dock_bikes']
-                                for estacion in estaciones_k['stations']], dtype=np.int_)
-            C = np.array([0] + [estacion['total_bases']
-                                for estacion in estaciones_k['stations']], dtype=np.int_)
-            v = np.arange(0, p.size)
-            q = (C * 2/3).astype(np.int_)
             t, random_idx = create_t(NUM_ESTACIONES)
             N = np.argsort(t, axis=1)
             
             # Estaciones aleatorias
-            p = p[random_idx]
+            p = po[random_idx]
             v = np.arange(0, NUM_ESTACIONES, dtype=np.intp)
-            q = q[random_idx]
+            q = qo[random_idx]
             
             # Algoritmos
             tt = time()
@@ -80,7 +80,7 @@ def main():
             resultados_vndbasicpilot.append(z)
 
             tt = time()
-            r, y, b, a, _, z = VND(r, y, b, ttt, z, v, p, a, q, t, k, tl, 10, N)
+            _, _, _, _, _, z = VND(r, y, b, ttt, z, v, p, a, q, t, k, tl, 10, N)
             t_vndpilot += time() - tt
             resultados_vndpilot.append(z)
 

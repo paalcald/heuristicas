@@ -155,12 +155,12 @@ def hcv_single(
         tt[lm] = tt[lm - 1] + t[u, vs] + TIEMPO_OPERACION
         r[lm] = vs
         y[lm] = g[gs] if (a[vs] > q[vs]) else -g[gs]
-        a[vs] = a[vs] - y[lm]
+        a[vs] -= y[lm]
         b[lm] = b[lm - 1] + y[lm]
         u = vs
 
     # Paso 7
-    tt[lm + 1] = tt[lm] + t[u, 0]
+    tt[lm] = tt[lm] + t[u, 0]
     if b[-2] != 0:
         lmb = lm
         while True:

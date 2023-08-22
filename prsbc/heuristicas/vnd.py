@@ -28,13 +28,14 @@ def vnd_extended(r, y, b, tt, z, v, p, a, q, t, k, tl, D, N):
                         )
                     ro, yo, bo, ao, tt, z = hcv_fleet(v,p,q,t,k,tl,idx,ro,yo,ao,bo,tt)  
                     if z < zmin:
+                        zmin = z
                         r = ro
                         y = yo
                         b = bo
                         a = ao
                         tt = tto
 
-    return r, y, b, a, tt, z
+    return r, y, b, a, tt, zmin
 
                     
 def vnd_basic(r, y, b, tt, a, q, t, k, tl, D, N):
