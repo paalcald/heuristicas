@@ -167,7 +167,7 @@ def hcv_single(
             # Paso 8
             rb = r[np.arange(1, lmb + 1)]
             # Esto es equivalente a al paso 8 del algoritmo original
-            if len(rb) == 0:
+            if len(rb[p[rb] > q[rb]]) == 0:
                 break
             vs = rb[p[rb] > q[rb]][-1]
             lmb = np.where(r == vs)[0][0]

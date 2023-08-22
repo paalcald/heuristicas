@@ -26,7 +26,7 @@ def vnd_extended(r, y, b, tt, z, v, p, a, q, t, k, tl, D, N):
                         +t[r[idx[0], idx[1] - 1], r[idy]]
                         - t[r[idx[0], idx[1] - 1], r[idx]]
                         )
-                    ro, yo, bo, ao, tt, z = hcv_fleet(v,p,q,t,k,tl,idx,ro,yo,ao,bo,tt)
+                    ro, yo, bo, ao, tt, z = hcv_fleet(v,p,q,t,k,tl,idx,ro,yo,ao,bo,tt)   # type: ignore
                     if z < zmin:
                         r = ro
                         y = yo

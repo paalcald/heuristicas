@@ -4,7 +4,7 @@ import json
 from typing import Tuple, List
 
 
-def create_t(num_stations: int) -> Tuple[np.array, List[int]]:
+def create_t(num_stations: int) -> Tuple[np.array, List[int]]: # type: ignore
     
     """
     Creates the matrix time for a random subset of the stations.
